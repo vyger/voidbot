@@ -40,9 +40,12 @@ voidbot/
 │   ├── circuits/           #   one .cpp per circuit (subclasses Circuit)
 │   └── gen/                #   GENERATED jack + scale tables (do not edit)
 ├── plugin/                 # VCV Rack plugin (Rack SDK Makefile workflow)
-│   ├── src/                #   MasterBase.hpp (shared master host), DroidMaster,
-│   │                       #   Master18, controller expanders, G8, X7, Layout.hpp
-│   └── res/faceplates/     #   panel art (PNG faceplates from the Forge)
+│   └── src/                #   MasterBase.hpp (shared master host), DroidMaster,
+│                           #   Master18, controller expanders, G8, X7, Layout.hpp
+├── res/faceplates/         # panel art (PNG faceplates from the Forge)
+├── plugin.json             # Rack manifest (the VCV Library requires it at the root)
+├── Makefile                # Rack plugin build; forwards test targets to test.mk
+├── test.mk                 # test harness and parity checks (no SDK needed)
 ├── tests/
 │   ├── golden/             #   per-circuit golden test cases (.gold, one dir/circuit)
 │   ├── runner/             #   headless golden runner (links engine directly)
@@ -237,7 +240,7 @@ directive; `droidcheck --experimental` validates them. Rationale and costs:
 ## The Rack plugin (`plugin/`)
 
 Built with the Rack SDK + Makefile workflow (`RACK_DIR`, `make`, `make
-dist`, `plugin.json`) — see the `vcv-rack-plugin-dev` skill. The plugin
+dist`, `plugin.json`) — see the `vcv-rack-plugin-dev` skill. The root
 Makefile also compiles `engine/` sources; the headless test runner builds the
 same sources standalone, so there is exactly one engine. The plugin ships the
 two masters, all nine controllers, the `G8` and `X7` expanders, and a
@@ -317,8 +320,8 @@ I/O rides the `processExtraIO()` hook.
 
 ## Verification harness (`tests/`)
 
-`make test` runs four gates, all headless, exit code = failures (see the root
-`Makefile`): **unittests** + **goldens** + **layoutcheck** + **artcheck**.
+`make test` runs four gates, all headless, exit code = failures (see
+`test.mk`): **unittests** + **goldens** + **layoutcheck** + **artcheck**.
 
 - **Golden test case** = one `.gold` file (line-oriented, zero-dependency
   format — see `tests/runner/goldfile.hpp`): inline patch text (`patch <<< …

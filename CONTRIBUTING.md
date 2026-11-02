@@ -154,7 +154,7 @@ tree clean — **never commit red, never partially commit.**
   circuits, `engine/experimental.json` (hand-authored; see
   [ADR 0001](docs/adr/0001-experimental-circuits.md)). Edit those and rerun
   `make gen`.
-- Match the surrounding formatting; the Makefile builds with `-Wall -Wextra`,
+- Match the surrounding formatting; `test.mk` builds with `-Wall -Wextra`,
   so keep it warning-clean.
 
 ## Submitting changes
