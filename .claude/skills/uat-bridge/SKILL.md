@@ -20,7 +20,7 @@ itself permission to launch Rack.
 ## Launch recipe
 
 ```sh
-cd plugin && make install                 # rebuilds & installs; bakes VOIDBOT_GIT_HASH
+make install                             # rebuilds & installs; bakes VOIDBOT_GIT_HASH
 SESSION=$(mktemp -t uat-session-XXXXXX).vcv   # UNIQUE per run — /rack/save writes
 cp tests/smoketest_default.vcv "$SESSION"     # back to this path, so a fixed name
                                               # gets dirtied by one run and silently

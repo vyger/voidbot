@@ -1,7 +1,7 @@
 #include "ChainModule.hpp"
 #include "EncoderWidgets.hpp"
 #include "DroidWidgets.hpp"
-#include "src/controllerstate.hpp"   // droid::DisplayLayout (via -I../engine)
+#include "src/controllerstate.hpp"   // droid::DisplayLayout (via -Iengine)
 #include <algorithm>
 #include <cmath>
 #include <cstring>

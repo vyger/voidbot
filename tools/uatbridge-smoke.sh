@@ -173,17 +173,17 @@ WANT=$(git -C "$REPO_ROOT" rev-parse --short HEAD)
 if [ "$HASH" = "$WANT" ]; then
     echo "ok: ping gitHash matches HEAD ($HASH)"
 # The gate exists to catch a stale BINARY, and the binary is built from
-# plugin/ + engine/ only. So a hash mismatch whose two commits have identical
-# plugin/ and engine/ trees (the common case: docs, patches or runbook commits
-# moved HEAD after the install) cannot mean a stale build -- accept it and say
-# so, instead of making every doc commit need SKIP_HASH=1.
+# plugin/ + engine/ + res/ + plugin.json + Makefile only. So a hash mismatch
+# whose two commits have identical trees for all of those (the common case:
+# docs, patches or runbook commits moved HEAD after the install) cannot mean a
+# stale build -- accept it and say so, instead of making every doc commit need SKIP_HASH=1.
 elif git -C "$REPO_ROOT" rev-parse --verify -q "$HASH^{commit}" >/dev/null &&
-     git -C "$REPO_ROOT" diff --quiet "$HASH" HEAD -- plugin engine; then
-    echo "ok: gitHash $HASH != HEAD $WANT, but plugin/ and engine/ are byte-identical between them (non-code drift)"
+     git -C "$REPO_ROOT" diff --quiet "$HASH" HEAD -- plugin engine res plugin.json Makefile; then
+    echo "ok: gitHash $HASH != HEAD $WANT, but the plugin sources are byte-identical between them (non-code drift)"
 elif [ "${SKIP_HASH:-}" = "1" ]; then
     echo "WARN: gitHash $HASH != HEAD $WANT and the code trees differ (SKIP_HASH=1, continuing)"
 else
-    fail "stale build: bridge gitHash=$HASH, HEAD=$WANT, and plugin/ or engine/ differs between them. Rebuild with 'cd plugin && make install' (SKIP_HASH=1 overrides, e.g. when the installed build came from another worktree)"
+    fail "stale build: bridge gitHash=$HASH, HEAD=$WANT, and the plugin sources differ between them. Rebuild with 'make install' (SKIP_HASH=1 overrides, e.g. when the installed build came from another worktree)"
 fi
 
 # --- find the master ---------------------------------------------------------

@@ -62,7 +62,7 @@
 // full text, the matrix simply has nothing to spell. At the time of writing
 // every error the loader raises IS mapped; Unmapped is the safe default for
 // ones added later.
-#include "src/types.hpp"   // droid::ErrorCode, droid::LoadError (via -I../engine)
+#include "src/types.hpp"   // droid::ErrorCode, droid::LoadError (via -Iengine)
 #include <cstdint>
 #include <string>
 #include <vector>

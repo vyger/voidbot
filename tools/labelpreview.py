@@ -7,7 +7,7 @@ straight out of Layout.hpp, and the labels come from build/labeldump, which
 `make labelcheck` holds to the Forge's own parser. So this preview cannot drift
 from what the plugin renders: both sides read the same two sources.
 
-    make build/layoutdump build/labeldump
+    make -f test.mk build/layoutdump build/labeldump
     build/layoutdump > build/layout.json
     tools/labelpreview.py master patches/uat-core.ini > /tmp/preview.svg
 
@@ -90,7 +90,7 @@ def main():
         labels[(t, int(num))] = (short, text)
 
     box_w, box_h = mod["hp"] * 15.0, 128.5 * PX_PER_MM
-    png = ROOT / "plugin/res/faceplates" / f"{slug}.png"
+    png = ROOT / "res/faceplates" / f"{slug}.png"
     b64 = base64.b64encode(png.read_bytes()).decode() if png.exists() else ""
 
     parts = [

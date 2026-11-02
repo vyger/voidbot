@@ -1,7 +1,7 @@
 #pragma once
 #include "plugin.hpp"
 
-// Build identity stamped in by plugin/Makefile at compile time: the short
+// Build identity stamped in by the root Makefile at compile time: the short
 // commit hash, plus the tag the build is exactly at or the branch it was
 // built from (empty for a detached HEAD that isn't at a tag).
 #ifndef VOIDBOT_GIT_HASH

@@ -1,7 +1,7 @@
 #!/bin/sh
 # Render every module's screenshot via Rack's built-in screenshot mode and
 # stage them for review/diffing. Requires VCV Rack 2 installed and the plugin
-# built+installed (make -C plugin install).
+# built+installed (make install).
 set -eu
 RACK_APP="${RACK_APP:-/Applications/VCV Rack 2 Pro.app/Contents/MacOS/Rack}"
 [ -x "$RACK_APP" ] || RACK_APP="/Applications/VCV Rack 2 Free.app/Contents/MacOS/Rack"

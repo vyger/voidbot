@@ -21,23 +21,24 @@ picture, [../architecture.md](../architecture.md).
 Requires the [VCV Rack SDK](https://vcvrack.com/manual/Building#Setting-up-your-development-environment)
 and a C++17 toolchain.
 
+Run from the repo root:
+
 ```sh
-cd plugin
 make RACK_DIR=/path/to/Rack-SDK            # build plugin.dylib
 make install RACK_DIR=/path/to/Rack-SDK   # build + copy into the Rack user plugin folder
 make clean RACK_DIR=/path/to/Rack-SDK     # remove build artifacts
 ```
 
-`RACK_DIR` defaults to `../../Rack-SDK`; pass it explicitly if the SDK lives
+`RACK_DIR` defaults to `../Rack-SDK`; pass it explicitly if the SDK lives
 elsewhere. After `make install`, launch VCV Rack and add the **voidbot master**
 module from the `voidbot` brand.
 
-Note: the Rack SDK's `compile.mk` forces `-std=c++11`; the Makefile strips that
+Note: the Rack SDK's `compile.mk` forces `-std=c++11`; the root Makefile strips that
 and re-adds `-std=c++17` after including `plugin.mk` so the engine sources build.
 
 ## Attribution
 
-Faceplate art (`plugin/res/faceplates/*.png`) is derived from the
+Faceplate art (`../res/faceplates/*.png`) is derived from the
 [Zarkuun/droidforge](https://github.com/Zarkuun/droidforge) faceplate renders
 (GPL-3, © Der Mann mit der Maschine) with the author's permission, with the
 DROID name and DROID/DMMDM branding removed (voidbot wordmark in

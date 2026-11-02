@@ -100,7 +100,7 @@ char (`I N O G B L P E S R X`); positions are control centres in HP.
   changed); `make artcheck` validates positions against the faceplate PNGs via
   OpenCV Hough-circle/line detection. Both skip gracefully if their inputs
   (`tools/droidcheck/vendor/`, `opencv-python`) are absent.
-- Faceplate art is `plugin/res/faceplates/*.png`, loaded by
+- Faceplate art is `res/faceplates/*.png`, loaded by
   `dw::ImagePanel::create` (`plugin/src/DroidWidgets.hpp`).
 
 `Layout.hpp` is deliberately Rack-free (`#include <cstring>` only) so the
