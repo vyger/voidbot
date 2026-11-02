@@ -7,7 +7,7 @@ straight out of Layout.hpp, and the labels come from build/labeldump, which
 `make labelcheck` holds to the Forge's own parser. So this preview cannot drift
 from what the plugin renders: both sides read the same two sources.
 
-    make build/layoutdump build/labeldump
+    make -f test.mk build/layoutdump build/labeldump
     build/layoutdump > build/layout.json
     tools/labelpreview.py master patches/uat-core.ini > /tmp/preview.svg
 

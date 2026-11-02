@@ -173,10 +173,10 @@ WANT=$(git -C "$REPO_ROOT" rev-parse --short HEAD)
 if [ "$HASH" = "$WANT" ]; then
     echo "ok: ping gitHash matches HEAD ($HASH)"
 # The gate exists to catch a stale BINARY, and the binary is built from
-# plugin/ + engine/ + res/ + plugin.json + Makefile only. So a hash mismatch whose two commits have identical
-# trees for all of those (the common case: docs, patches or runbook commits
-# moved HEAD after the install) cannot mean a stale build -- accept it and say
-# so, instead of making every doc commit need SKIP_HASH=1.
+# plugin/ + engine/ + res/ + plugin.json + Makefile only. So a hash mismatch
+# whose two commits have identical trees for all of those (the common case:
+# docs, patches or runbook commits moved HEAD after the install) cannot mean a
+# stale build -- accept it and say so, instead of making every doc commit need SKIP_HASH=1.
 elif git -C "$REPO_ROOT" rev-parse --verify -q "$HASH^{commit}" >/dev/null &&
      git -C "$REPO_ROOT" diff --quiet "$HASH" HEAD -- plugin engine res plugin.json Makefile; then
     echo "ok: gitHash $HASH != HEAD $WANT, but the plugin sources are byte-identical between them (non-code drift)"

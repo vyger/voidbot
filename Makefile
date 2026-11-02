@@ -31,7 +31,12 @@ CXXFLAGS := $(filter-out -std=c++11,$(CXXFLAGS)) -std=c++17
 
 else
 
+# Harness-only checkout: plugin targets fail loudly rather than looking done
+# (dist/ and dep/ can be left behind by an SDK build, hence .PHONY), while clean
+# has nothing SDK-specific to do. .DEFAULT_GOAL stops $(HARNESS_TARGETS) below
+# from being picked up as the default.
 .DEFAULT_GOAL := all
+.PHONY: all dist install dep cleandep clean
 
 all dist install dep cleandep:
 	@echo "error: no Rack SDK at RACK_DIR=$(RACK_DIR); pass RACK_DIR=/path/to/Rack-SDK" >&2
