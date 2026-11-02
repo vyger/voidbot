@@ -98,7 +98,7 @@ struct DroidM4 : ChainModule {
 };
 
 // Geometry of the motor fader, measured off the faceplate art (m4.png,
-// plugin/res/faceplates/m4.png) with a python strip scan — see the M4 fader
+// res/faceplates/m4.png) with a python strip scan — see the M4 fader
 // UAT task. All four columns are identical. Values in millimetres; Rack px come
 // from mm2px() so they track the panel, not the art's own DPI.
 //   - slot (dark track in the art) top edge: y = 25.39 mm

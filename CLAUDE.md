@@ -19,7 +19,10 @@ example), and
 
 Build the Rack plugin with the Rack SDK + Makefile workflow (`RACK_DIR`, `make`,
 `make dist`, `plugin.json`, panel SVGs, the `rack::` C++ API) — see the
-`vcv-rack-plugin-dev` skill.
+`vcv-rack-plugin-dev` skill. The plugin builds from the repo root: the VCV Library
+requires `Makefile` and `plugin.json` there, so those and `res/` live at the root
+while the sources stay in `plugin/src/`. Tests and checks live in `test.mk`; the
+root `Makefile` forwards to them, and they need no SDK.
 
 ## Contribution workflow
 
@@ -130,7 +133,7 @@ cd tools/droidcheck
 
 The plugin's Rack identity is **voidbot** (brand, plugin slug, module names —
 always lowercase; module slugs are bare hardware names like `master`, `m4`).
-The faceplate PNGs in `plugin/res/faceplates/` are one-time derivatives of the
+The faceplate PNGs in `res/faceplates/` are one-time derivatives of the
 Forge renders with all DROID/DMMDM branding removed (creator's permission;
 wordmark in Share Tech Mono, OFL) — there is no import/regen script anymore.
 DROID stays as the factual name of the emulated system; the plugin is not

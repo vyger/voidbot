@@ -1,6 +1,6 @@
 #pragma once
 #include "plugin.hpp"
-#include "src/engine.hpp"   // droid::Engine (via -I../engine)
+#include "src/engine.hpp"   // droid::Engine (via -Iengine)
 #include "src/patchstate.hpp"   // issue #42: per-patch circuit-state store
 #include "ChainModule.hpp"  // droid::chain protocol + ChainModule::isChain{Left,Right}Neighbor
 #include "Layout.hpp"

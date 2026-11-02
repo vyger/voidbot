@@ -150,12 +150,11 @@ portable, but Linux and Windows are unverified — PRs porting or testing there
 are always welcome (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ```sh
-cd plugin
 make RACK_DIR=/path/to/Rack-SDK           # build plugin.dylib/.so/.dll
 make install RACK_DIR=/path/to/Rack-SDK   # build + copy into Rack's user plugin folder
 ```
 
-`RACK_DIR` defaults to `../../Rack-SDK`; pass it explicitly if the SDK lives
+`RACK_DIR` defaults to `../Rack-SDK`; pass it explicitly if the SDK lives
 elsewhere. After `make install`, launch VCV Rack and the modules appear under
 the `voidbot` brand.
 
@@ -191,7 +190,7 @@ voidbot is licensed **GPL-3.0-or-later**. See [LICENSE](LICENSE).
   (Zürich). This project is an independent, unofficial emulation and is **not
   affiliated with or endorsed by** Der Mann mit der Maschine. Product and circuit
   names are used only to describe compatibility.
-- **Faceplate art** (`plugin/res/faceplates/*.png`) is derived from the GPL-3
+- **Faceplate art** (`res/faceplates/*.png`) is derived from the GPL-3
   licensed [Zarkuun/droidforge](https://github.com/Zarkuun/droidforge) faceplate
   renders (© Der Mann mit der Maschine) **with the author's permission**, on the
   condition that the DROID name and DROID/DMMDM branding are removed — hence the

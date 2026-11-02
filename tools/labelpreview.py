@@ -90,7 +90,7 @@ def main():
         labels[(t, int(num))] = (short, text)
 
     box_w, box_h = mod["hp"] * 15.0, 128.5 * PX_PER_MM
-    png = ROOT / "plugin/res/faceplates" / f"{slug}.png"
+    png = ROOT / "res/faceplates" / f"{slug}.png"
     b64 = base64.b64encode(png.read_bytes()).decode() if png.exists() else ""
 
     parts = [

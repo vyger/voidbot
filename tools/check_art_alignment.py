@@ -25,7 +25,7 @@ CIRCLE_TYPES = set("PIOGB")   # N intentionally excluded: same hole as I
 # ~22.75 px/mm, about 0.2-0.6% off the naive per-image guess. That sounds
 # tiny but compounds linearly across an 8HP-wide panel into an 8-12px drift
 # at the far edge -- exactly the near-miss failures this constant fixes.
-# Calibrated once against plugin/res/faceplates/master.png (color-segmented
+# Calibrated once against res/faceplates/master.png (color-segmented
 # jack-surround discs vs. Layout.hpp's own I/O grid spacing); reused as a
 # single global constant since all faceplates come from the same render
 # pipeline/DPI.
@@ -38,12 +38,12 @@ PX_PER_MM = 22.75
 #   - p8s8 "P" registers are physically SLIDERS (the module is 8 faders +
 #     8 rotary switches); their register type is "P" (pot) in the Forge's
 #     data model but the artwork renders a rectangular fader cap, not a
-#     disc. Verified visually: plugin/res/faceplates/p8s8.png shows vertical
+#     disc. Verified visually: res/faceplates/p8s8.png shows vertical
 #     slider slots at every P position; the round controls in that image are
 #     the S (switch) row, which is already outside CIRCLE_TYPES.
 #   - m4 "P" registers are the motor-fader slots (the caps are drawn by the
 #     widget, not baked into the art; the slot is a rectangle, not a disc) --
-#     plugin/res/faceplates/m4.png.
+#     res/faceplates/m4.png.
 #   - m4 "B" registers are the touch plates (manual/hardware.md "The touch
 #     plates"). The faceplate is blank there -- the widget draws a standard
 #     VCV light-button (the vendor art's icon graphic was DMMDM branding,

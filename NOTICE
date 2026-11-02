@@ -20,7 +20,7 @@ compatibility and behavior.
 Third-party materials
 ================================================================================
 
-1. Faceplate art  —  plugin/res/faceplates/*.png
+1. Faceplate art  —  res/faceplates/*.png
    © Der Mann mit der Maschine. One-time derivatives of the faceplate renders
    in the DROID Forge repository (https://github.com/Zarkuun/droidforge),
    which is licensed GPL-3.0, made with the author's permission: all

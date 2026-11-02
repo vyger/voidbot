@@ -66,7 +66,7 @@ exists:
 
 ## Preconditions
 
-- Build + install: `cd plugin && make install` (bakes `VOIDBOT_GIT_HASH` into
+- Build + install: `make install` (bakes `VOIDBOT_GIT_HASH` into
   the binary; the bridge's `/ping` echoes it so a stale build can't silently
   pass).
 - Launch from the **rack template** `tests/smoketest_default.vcv` — a
