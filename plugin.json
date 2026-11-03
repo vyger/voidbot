@@ -8,91 +8,106 @@
   "authorEmail": "vygerofficial@gmail.com",
   "pluginUrl": "https://github.com/vyger/voidbot",
   "sourceUrl": "https://github.com/vyger/voidbot",
+  "manualUrl": "https://github.com/vyger/voidbot#readme",
   "description": "Unofficial emulation of the DROID CV processing system — runs droid.ini patches. Not affiliated with or supported by Der Mann mit der Maschine.",
   "modules": [
     {
       "slug": "master",
-      "name": "voidbot master",
+      "name": "master",
       "description": "Runs DROID patches (droid.ini) — unofficial emulation of the DROID master; not affiliated with or supported by Der Mann mit der Maschine",
-      "tags": ["Utility", "Logic", "Sequencer", "Hardware clone"]
+      "tags": ["Utility", "Logic", "Sequencer", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-droid"
     },
     {
       "slug": "master18",
-      "name": "voidbot master18",
+      "name": "master18",
       "description": "Runs DROID patches — MASTER18 emulation (8 CV outs, 2 gate ins, 4 gate outs, USB + 2×TRS MIDI, VCO tuner)",
-      "tags": ["Utility", "Logic", "Sequencer", "Hardware clone"]
+      "tags": ["Utility", "Logic", "Sequencer", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-master18"
     },
     {
       "slug": "p2b8",
-      "name": "voidbot p2b8",
+      "name": "p2b8",
       "description": "P2B8 controller — 2 pots, 8 buttons with LEDs (chain right of the master)",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-droid-p2b8-controller"
     },
     {
       "slug": "p4b2",
-      "name": "voidbot p4b2",
+      "name": "p4b2",
       "description": "P4B2 controller — 4 pots, 2 buttons with LEDs",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-droid-p4b2-controller-"
     },
     {
       "slug": "p10",
-      "name": "voidbot p10",
+      "name": "p10",
       "description": "P10 controller — 10 pots",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-droid-p10-controller"
     },
     {
       "slug": "s10",
-      "name": "voidbot s10",
+      "name": "s10",
       "description": "S10 controller — 2 rotary + 8 toggle switches",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-droid-s10-controller"
     },
     {
       "slug": "p8s8",
-      "name": "voidbot p8s8",
+      "name": "p8s8",
       "description": "P8S8 controller — 8 sliders with LEDs, 8 toggle switches",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-p8s8"
     },
     {
       "slug": "b32",
-      "name": "voidbot b32",
+      "name": "b32",
       "description": "B32 controller — 32 buttons with LEDs",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-b32"
     },
     {
       "slug": "e4",
-      "name": "voidbot e4",
+      "name": "e4",
       "description": "E4 controller — 4 endless encoders with push + value rings",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-e4"
     },
     {
       "slug": "m4",
-      "name": "voidbot m4",
+      "name": "m4",
       "description": "M4 controller — 4 motor faders with touch + RGB LEDs",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-m4"
     },
     {
       "slug": "g8",
-      "name": "voidbot g8",
+      "name": "g8",
       "description": "G8 gate expander — 8 gate ins, 8 gate outs (5 V)",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-droid-g8-expander"
     },
     {
       "slug": "db8e",
-      "name": "voidbot db8e",
+      "name": "db8e",
       "description": "DB8E controller — 8 buttons, encoder, 128x64 display",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-db8e"
     },
     {
       "slug": "x7",
-      "name": "voidbot x7",
+      "name": "x7",
       "description": "X7 expander — USB + TRS MIDI, 4 gate outputs (first in chain, right of the master)",
-      "tags": ["Expander", "Hardware clone"]
+      "tags": ["Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-x7-"
     },
     {
       "slug": "bling",
-      "name": "voidbot bling",
+      "name": "bling",
       "description": "1 HP blind panel — chain pass-through",
-      "tags": ["Blank", "Expander", "Hardware clone"]
+      "tags": ["Blank", "Expander", "Hardware clone"],
+      "modularGridUrl": "https://modulargrid.net/e/der-mann-mit-der-maschine-blind-panel"
     }
   ]
 }
