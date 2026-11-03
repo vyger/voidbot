@@ -53,7 +53,7 @@ The plugin appears in Rack under the brand **voidbot** and provides 14 modules:
 ## Using the modules
 
 1. Add a **master** (or **master18**) module from the `voidbot` brand. It
-   starts on a bundled patch of eight free-running LFOs, one per output
+   starts on a bundled patch of eight free-running sine LFOs, one per output
    (`O1`…`O8`, ±5 V, 0.1 Hz to 8 Hz), so it does something straight away.
 2. Load your own `droid.ini` patch via the master's context menu.
 3. Chain controllers and expanders to the **right** of the master. Chain
