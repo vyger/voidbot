@@ -66,7 +66,8 @@ exists:
 
 ## Preconditions
 
-- Build + install: `make install` (bakes `VOIDBOT_GIT_HASH` into
+- Build + install: `make install UAT=1` (builds the bridge in — a plain
+  `make install` leaves it out — and bakes `VOIDBOT_GIT_HASH` into
   the binary; the bridge's `/ping` echoes it so a stale build can't silently
   pass).
 - Launch from the **rack template** `tests/smoketest_default.vcv` — a
@@ -229,8 +230,9 @@ Rack row: `master | p2b8 | b32` (adjacent, left to right).
 1. ☐ Assemble via `POST /modules` (master at x=0, p2b8 at
    x=master_width_px, b32 at x=master_width_px+p2b8_width_px — see
    `tools/uatbridge-smoke.sh`'s adjacency comment for the px convention).
-   `GET /master/{id}/status` → `.chain == ["p2b8","b32"]` (before any patch
-   load, the chain line reads `master only` — expected with no patch loaded).
+   `GET /master/{id}/status` → `.chain == ["p2b8","b32"]` (before a patch
+   that declares them is loaded, the chain line reads `master only` — the new
+   master runs the bundled `lfo8.ini`, which declares no controllers).
 2. ☐ `POST /modules` to insert `bling` between p2b8 and b32 (move
    b32 right via `POST /modules/{id}/move` first if needed, then place
    bling, then move b32 back adjacent). `GET /master/{id}/status` →
@@ -390,7 +392,9 @@ Continue from Phase 4 state.
    reload, fresh `Engine` default) and `.tick.valid == false` immediately
    after (stale epoch cleared). Re-enable and repeat once to confirm the
    toggle round-trips. Separately: `POST /master/{id}/cpu/profiling` before
-   any patch has ever loaded on a scratch master → 409 `no patch loaded`.
+   any patch has ever loaded on a scratch master (added with `POST /modules`
+   `"emptyPatch": true` — without it a new master starts on the bundled
+   `lfo8.ini`) → 409 `no patch loaded`.
 
 ## Phase 6 — Gates & MASTER18 (`uat-gates.ini`, `test-m6-master18.ini`)
 
@@ -455,7 +459,8 @@ g8-first row pins `chainError` and freezes the G8 gates).
    1+8 / output LEDs 1+8 for the `O9` error on line 99 of a 99-line patch — see
    basics.md §5.3), hovering the empty faceplate shows the error, and the
    context menu's card quotes the offending line. Then check the other states:
-   no patch → `"no-patch"` + grey ring + dark matrix; a deprecated-circuit patch
+   no patch (a master added with `"emptyPatch": true`) → `"no-patch"` + grey
+   ring + dark matrix; a deprecated-circuit patch
    → `"warnings"` + amber ring, still running; a broken chain → `"chain-error"`
    + red ring, clearing to `"running"` (no ring) the moment the chain is fixed.
    `GET /master/{id}/diagnostics` is the SAME verdict as structured fields

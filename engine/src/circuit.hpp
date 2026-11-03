@@ -30,6 +30,7 @@ struct StateWriter {
     void b(bool x)   { v.push_back(x ? 1.0 : 0.0); }
 };
 struct StateReader {
+    explicit StateReader(const std::vector<double>& blob) : v(blob) {}
     const std::vector<double>& v;
     size_t i = 0;
     double f() { return i < v.size() ? v[i++] : 0.0; }

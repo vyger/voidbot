@@ -89,8 +89,9 @@ agents can verify without launching Rack. Never commit with `make test` red.
 
 Beyond the headless suites, the plugin has an end-to-end UAT process that
 drives a real Rack instance through the plugin's localhost HTTP bridge
-(`UatBridge`, `127.0.0.1:2601`, enabled by launching Rack with
-`VOIDBOT_UAT_BRIDGE=1`). **Any change must leave all test suites green,
+(`UatBridge`, `127.0.0.1:2601`, built in by `make install UAT=1` and
+enabled by launching Rack with `VOIDBOT_UAT_BRIDGE=1`; release builds leave it
+out). **Any change must leave all test suites green,
 including the e2e UAT** — at minimum the automated smoke, and the full runbook
 for changes that touch the plugin/adapter layer, panels, or the bridge itself.
 

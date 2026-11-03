@@ -7,8 +7,10 @@ description: Drive VCV Rack's localhost UAT bridge (127.0.0.1:2601) to run pre-r
 
 Reference card for the `UatBridge` HTTP endpoint hand-rolled into the voidbot
 plugin (`plugin/src/uatbridge/Bridge.cpp`), active only when the plugin is
-launched with `VOIDBOT_UAT_BRIDGE=1` (Mac and Linux builds only; on Windows the
-listener is compiled out and the variable is ignored). Everything below is verified against the
+built with `make install UAT=1` AND Rack is launched with `VOIDBOT_UAT_BRIDGE=1`
+(Mac and Linux builds only; on Windows the listener is compiled out and the
+variable is ignored). A plain `make install` — like the VCV Library build —
+leaves the bridge out entirely. Everything below is verified against the
 actual dispatch table and handlers — not the design spec's aspiration.
 Bridge is single-threaded (one accept loop): calls are effectively
 serialized; a long `/probe` blocks every other request for its window.
@@ -20,7 +22,7 @@ itself permission to launch Rack.
 ## Launch recipe
 
 ```sh
-make install                             # rebuilds & installs; bakes VOIDBOT_GIT_HASH
+make install UAT=1                       # rebuilds & installs WITH the bridge; bakes VOIDBOT_GIT_HASH
 SESSION=$(mktemp -t uat-session-XXXXXX).vcv   # UNIQUE per run — /rack/save writes
 cp tests/smoketest_default.vcv "$SESSION"     # back to this path, so a fixed name
                                               # gets dirtied by one run and silently
@@ -68,7 +70,7 @@ the endpoint reference below is for triage and ad-hoc checks.
    `curl -sf http://127.0.0.1:2601/ping`
 2. **Stale-build gate**: compare `gitHash` from the response against
    `git rev-parse --short HEAD`. Mismatch means the running Rack is an old
-   build — stop and `make install` again, don't proceed on stale code.
+   build — stop and `make install UAT=1` again, don't proceed on stale code.
 3. **Master registration poll**: `/ping` answering does NOT mean a master
    module is ready to drive — Rack may still be restoring the autosave.
    Poll `GET /master/{id}/status` until it returns 200 (404 = not
@@ -264,7 +266,7 @@ square feeds) read back as **0/1**, not 0/10 — only the Rack-port voltage
 | Route | Request | Response 200 | Other codes |
 |---|---|---|---|
 | `GET /modules` | — | `[{id, plugin, slug, x, y, width}]` (px) | 503 ui-not-attached |
-| `POST /modules` | `{plugin, slug, x, y}` | `{id}` | 400 invalid body; 404 unknown plugin/model; 500 create failure; 503 ui-not-attached |
+| `POST /modules` | `{plugin, slug, x, y, emptyPatch?}` — a master starts on the bundled `lfo8.ini` unless `emptyPatch: true` | `{id}` | 400 invalid body; 404 unknown plugin/model; 500 create failure; 503 ui-not-attached |
 | `DELETE /modules/{id}` | — | `{ok:true}` | 404 no such module; 503 ui-not-attached |
 | `POST /modules/{id}/move` | `{x, y}` | `{x, y}` (actual post-move px pos) | 400 invalid body; 404 no such module; 503 ui-not-attached |
 | `GET /cables` | — | `[{id, outputModuleId, outputId, inputModuleId, inputId}]` | 503 ui-not-attached |

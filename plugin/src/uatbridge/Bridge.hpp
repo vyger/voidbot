@@ -2,7 +2,9 @@
 // UAT bridge singleton — localhost HTTP control surface for headless Rack UAT.
 // HTTP thread parses and dispatches; Rack state is touched only via
 // engineMutex-guarded reads, thread-safe Engine calls, or the UI queue
-// drained by BridgeWidget. Env-gated: VOIDBOT_UAT_BRIDGE.
+// drained by BridgeWidget. Env-gated at runtime (VOIDBOT_UAT_BRIDGE=1) and
+// compiled in only by `make ... UAT=1`, which defines VOIDBOT_UAT_BRIDGE.
+#ifdef VOIDBOT_UAT_BRIDGE
 #include <atomic>
 #include <chrono>
 #include <functional>
@@ -157,9 +159,9 @@ private:
     // keeps the FIRST restValue, so an idempotent double-press cannot make the
     // held value the thing release restores.
     struct Hold {
-        int64_t moduleId;
-        int paramId;
-        int64_t frameDeadline;
+        int64_t moduleId = 0;
+        int paramId = 0;
+        int64_t frameDeadline = 0;
         float restValue = 0.f;
         bool untimed = false;
     };
@@ -168,3 +170,26 @@ private:
 };
 
 } // namespace uat
+
+#else  // !VOIDBOT_UAT_BRIDGE
+
+// Release build: no bridge, no socket. instance() is always null, so every
+// `if (auto* b = uat::Bridge::instance())` call site folds away; the empty
+// members exist only so those call sites still compile.
+struct DroidMasterBase;
+
+namespace uat {
+
+class Bridge {
+public:
+    static Bridge* instance() { return nullptr; }
+    static void start() {}
+    void ensureWidget() {}
+    void registerMaster(DroidMasterBase*) {}
+    void unregisterMaster(DroidMasterBase*) {}
+    void releaseAllHolds() {}
+};
+
+} // namespace uat
+
+#endif  // VOIDBOT_UAT_BRIDGE
