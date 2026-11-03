@@ -66,6 +66,15 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 # next to the curated ones in patches/.
 SCRATCH=$(mktemp -d -t uatbridge-smoke)
 RACK_PID=""
+# Rack may be launched through LaunchServices (see the launch block), so it is
+# not our child and `wait` cannot reap it: poll until the process is gone.
+wait_gone() {   # PID SECONDS
+    for _ in $(seq 1 "$2"); do
+        kill -0 "$1" 2>/dev/null || return 0
+        sleep 1
+    done
+    return 1
+}
 cleanup() {
     if [ -n "$RACK_PID" ] && kill -0 "$RACK_PID" 2>/dev/null; then
         # Quit through the bridge before killing: a killed Rack leaves log.txt
@@ -74,12 +83,7 @@ cleanup() {
         # failed run used to make every later launch-mode run fail too
         # ("master ... never registered"). A clean quit can take ~30 s.
         curl -s -m 5 -X POST "$BASE/rack/quit" >/dev/null 2>&1 || true
-        for _ in $(seq 1 90); do
-            kill -0 "$RACK_PID" 2>/dev/null || break
-            sleep 1
-        done
-        kill "$RACK_PID" 2>/dev/null || true
-        wait "$RACK_PID" 2>/dev/null || true
+        wait_gone "$RACK_PID" 90 || { kill "$RACK_PID" 2>/dev/null || true; wait_gone "$RACK_PID" 10 || true; }
     fi
     rm -rf "$SCRATCH"
 }
@@ -178,8 +182,34 @@ else
         echo "      copy kept at $PREV_LOG; marking it closed so Rack skips its crash prompt"
         printf '\nEND' >> "$RACK_LOG"
     fi
-    VOIDBOT_UAT_BRIDGE=1 "$RACK" ${LAUNCH_PATCH:+"$LAUNCH_PATCH"} &
-    RACK_PID=$!          # cleanup() (EXIT trap) kills it as the failure fallback
+    # Launch a macOS app bundle through LaunchServices (`open`), not as a
+    # child of this shell: started from a terminal session (tmux, an agent's
+    # shell) Rack is given background priority (nice 5), its engine fallback
+    # thread's 1/60 s sleeps stretch, and the engine was measured at 0.15x-0.3x
+    # real time -- every wall-clock probe below then fails. Via `open` it runs
+    # as a normal app: nice 0, ~0.9x.
+    case "$RACK" in
+    *.app/Contents/MacOS/*)
+        open -n -a "${RACK%%/Contents/MacOS/*}" --env VOIDBOT_UAT_BRIDGE=1 \
+            ${LAUNCH_PATCH:+--args "$LAUNCH_PATCH"}
+        RACK_PID=""
+        for _ in $(seq 1 20); do
+            if [ -n "$LAUNCH_PATCH" ]; then
+                RACK_PID=$(pgrep -n -f -- "$LAUNCH_PATCH" || true)
+            else
+                RACK_PID=$(pgrep -n -x "$(basename "$RACK")" || true)
+            fi
+            [ -n "$RACK_PID" ] && break
+            sleep 0.5
+        done
+        [ -n "$RACK_PID" ] || fail "launched $RACK via open but found no Rack process"
+        ;;
+    *)
+        VOIDBOT_UAT_BRIDGE=1 "$RACK" ${LAUNCH_PATCH:+"$LAUNCH_PATCH"} &
+        RACK_PID=$!
+        ;;
+    esac
+    # cleanup() (EXIT trap) quits, then kills, it as the failure fallback.
     LAUNCHED=1
     for _ in $(seq 1 60); do
         curl -sf -m 2 "$BASE/ping" >/dev/null 2>&1 && break
@@ -295,7 +325,7 @@ assert_jq '.statusLine | test("ok, [0-9]+ bytes RAM")' "patch load statusLine ok
 # Precondition: the engine keeps real time. The probes below count edges over
 # WALL-clock windows, so a slow engine fails them with misleading messages
 # ("cable in I1?"). With no audio module Rack runs on its fallback clock, and on
-# an idle Mac with the screen locked that clock was measured at 0.15x-0.28x.
+# a Rack launched as a terminal child (see the launch block) it ran at 0.15x-0.3x.
 do_http POST "/master/$MASTER_ID/watch" '{"ids":["N1"]}'
 assert_code 200 "POST watch (engine-speed check)"
 sleep 2
@@ -303,7 +333,7 @@ do_http GET "/master/$MASTER_ID/watch"
 assert_code 200 "GET watch (engine-speed check)"
 SPEED=$(echo "$HTTP_BODY" | jq -r '.signals.N1.ticks / .tickRateHz / 2')
 jq -e -n "$SPEED >= 0.8" >/dev/null \
-    || fail "engine runs at ${SPEED}x real time (fallback clock throttled -- Mac idle or screen locked?); the timing probes need real time. Run with the screen unlocked"
+    || fail "engine runs at ${SPEED}x real time (Rack's fallback clock is being throttled -- launched as a background process, or the Mac is asleep/locked?); the timing probes need real time"
 echo "ok: engine speed ${SPEED}x real time"
 
 # chainPhysical populates over the expander scan -- allow a few frames.
@@ -686,7 +716,7 @@ echo "SMOKE PASS"
 if [ "$LAUNCHED" = 1 ]; then
     do_http POST /rack/quit
     assert_code 200 "POST /rack/quit"
-    wait "$RACK_PID" 2>/dev/null || true
+    wait_gone "$RACK_PID" 90 || fail "Rack did not exit within 90 s of POST /rack/quit"
     echo "ok: Rack quit gracefully"
 else
     echo "ok: attach mode -- Rack left running"
