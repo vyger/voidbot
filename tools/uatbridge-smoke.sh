@@ -2,7 +2,8 @@
 # UAT bridge smoke: exercises every bridge endpoint against a known patch.
 # Run it as `make smoke` from the repo root (the canonical invocation; every
 # env override below still applies, e.g. `make smoke SKIP_HASH=1`).
-# Requires: plugin make install'd (build carries VOIDBOT_GIT_HASH), jq.
+# Requires: plugin built with the bridge, `make install UAT=1` (the build
+# carries VOIDBOT_GIT_HASH), and jq.
 #
 # SCOPE: contract-level checks only -- status codes, response shapes and
 # classifications that must hold within a second or two of the call that causes
@@ -66,7 +67,17 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 SCRATCH=$(mktemp -d -t uatbridge-smoke)
 RACK_PID=""
 cleanup() {
-    if [ -n "$RACK_PID" ]; then
+    if [ -n "$RACK_PID" ] && kill -0 "$RACK_PID" 2>/dev/null; then
+        # Quit through the bridge before killing: a killed Rack leaves log.txt
+        # without its closing END, and Rack's next launch then stops on the
+        # modal "Rack crashed" prompt before it opens any patch -- so one
+        # failed run used to make every later launch-mode run fail too
+        # ("master ... never registered"). A clean quit can take ~30 s.
+        curl -s -m 5 -X POST "$BASE/rack/quit" >/dev/null 2>&1 || true
+        for _ in $(seq 1 90); do
+            kill -0 "$RACK_PID" 2>/dev/null || break
+            sleep 1
+        done
         kill "$RACK_PID" 2>/dev/null || true
         wait "$RACK_PID" 2>/dev/null || true
     fi
@@ -154,6 +165,19 @@ else
     else
         echo "mode: launch ($RACK, autosave)"
     fi
+    # Rack ends a clean session's log.txt with END. Without it, the next
+    # launch blocks on a modal "Rack crashed during the last session" prompt
+    # (main() -> osdialog_message) before opening the patch, and nobody is
+    # there to answer it. Keep a copy of the unclean log so a real crash is
+    # not hidden, then mark it closed.
+    RACK_LOG="$HOME/Library/Application Support/Rack2/log.txt"
+    if [ -f "$RACK_LOG" ] && [ "$(tail -n 1 "$RACK_LOG")" != "END" ]; then
+        PREV_LOG=$(mktemp -t uatbridge-smoke-prevlog).txt
+        cp "$RACK_LOG" "$PREV_LOG"
+        echo "note: Rack's last session did not exit cleanly (last log line: $(tail -n 1 "$RACK_LOG" | cut -c1-120))"
+        echo "      copy kept at $PREV_LOG; marking it closed so Rack skips its crash prompt"
+        printf '\nEND' >> "$RACK_LOG"
+    fi
     VOIDBOT_UAT_BRIDGE=1 "$RACK" ${LAUNCH_PATCH:+"$LAUNCH_PATCH"} &
     RACK_PID=$!          # cleanup() (EXIT trap) kills it as the failure fallback
     LAUNCHED=1
@@ -161,7 +185,7 @@ else
         curl -sf -m 2 "$BASE/ping" >/dev/null 2>&1 && break
         sleep 1
     done
-    curl -sf -m 2 "$BASE/ping" >/dev/null 2>&1 || fail "bridge never came up (Rack launch or VOIDBOT_UAT_BRIDGE gate)"
+    curl -sf -m 2 "$BASE/ping" >/dev/null 2>&1 || fail "bridge never came up (Rack launch, VOIDBOT_UAT_BRIDGE gate, or a build without the bridge: 'make install UAT=1')"
 fi
 
 # --- ping: identity + stale-build gate --------------------------------------
@@ -183,7 +207,7 @@ elif git -C "$REPO_ROOT" rev-parse --verify -q "$HASH^{commit}" >/dev/null &&
 elif [ "${SKIP_HASH:-}" = "1" ]; then
     echo "WARN: gitHash $HASH != HEAD $WANT and the code trees differ (SKIP_HASH=1, continuing)"
 else
-    fail "stale build: bridge gitHash=$HASH, HEAD=$WANT, and the plugin sources differ between them. Rebuild with 'make install' (SKIP_HASH=1 overrides, e.g. when the installed build came from another worktree)"
+    fail "stale build: bridge gitHash=$HASH, HEAD=$WANT, and the plugin sources differ between them. Rebuild with 'make install UAT=1' (SKIP_HASH=1 overrides, e.g. when the installed build came from another worktree)"
 fi
 
 # --- find the master ---------------------------------------------------------
@@ -267,6 +291,20 @@ do_http POST "/master/$MASTER_ID/patch" "{\"path\":\"$CORE_PATCH\"}"
 assert_code 200 "POST /master/{id}/patch uat-core.ini"
 assert_jq '.patchPath == "'"$CORE_PATCH"'"' "patch load patchPath"
 assert_jq '.statusLine | test("ok, [0-9]+ bytes RAM")' "patch load statusLine ok+RAM"
+
+# Precondition: the engine keeps real time. The probes below count edges over
+# WALL-clock windows, so a slow engine fails them with misleading messages
+# ("cable in I1?"). With no audio module Rack runs on its fallback clock, and on
+# an idle Mac with the screen locked that clock was measured at 0.15x-0.28x.
+do_http POST "/master/$MASTER_ID/watch" '{"ids":["N1"]}'
+assert_code 200 "POST watch (engine-speed check)"
+sleep 2
+do_http GET "/master/$MASTER_ID/watch"
+assert_code 200 "GET watch (engine-speed check)"
+SPEED=$(echo "$HTTP_BODY" | jq -r '.signals.N1.ticks / .tickRateHz / 2')
+jq -e -n "$SPEED >= 0.8" >/dev/null \
+    || fail "engine runs at ${SPEED}x real time (fallback clock throttled -- Mac idle or screen locked?); the timing probes need real time. Run with the screen unlocked"
+echo "ok: engine speed ${SPEED}x real time"
 
 # chainPhysical populates over the expander scan -- allow a few frames.
 CHAIN_OK=0
