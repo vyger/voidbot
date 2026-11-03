@@ -326,13 +326,15 @@ assert_jq '.statusLine | test("ok, [0-9]+ bytes RAM")' "patch load statusLine ok
 # WALL-clock windows, so a slow engine fails them with misleading messages
 # ("cable in I1?"). With no audio module Rack runs on its fallback clock, and on
 # a Rack launched as a terminal child (see the launch block) it ran at 0.15x-0.3x.
+# A normally launched Rack measures 0.75x-0.9x (its fallback loop oversleeps a
+# little), which the probe tolerances absorb; 0.5 splits the two cleanly.
 do_http POST "/master/$MASTER_ID/watch" '{"ids":["N1"]}'
 assert_code 200 "POST watch (engine-speed check)"
 sleep 2
 do_http GET "/master/$MASTER_ID/watch"
 assert_code 200 "GET watch (engine-speed check)"
 SPEED=$(echo "$HTTP_BODY" | jq -r '.signals.N1.ticks / .tickRateHz / 2')
-jq -e -n "$SPEED >= 0.8" >/dev/null \
+jq -e -n "$SPEED >= 0.5" >/dev/null \
     || fail "engine runs at ${SPEED}x real time (Rack's fallback clock is being throttled -- launched as a background process, or the Mac is asleep/locked?); the timing probes need real time"
 echo "ok: engine speed ${SPEED}x real time"
 
