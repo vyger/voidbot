@@ -5,8 +5,8 @@ namespace droid {
 
 namespace {
 struct Reader {
-    const uint8_t* p;
-    size_t n;
+    const uint8_t* p = nullptr;
+    size_t n = 0;
     size_t pos = 0;
     bool fail = false;
 

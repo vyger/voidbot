@@ -52,8 +52,10 @@ The plugin appears in Rack under the brand **voidbot** and provides 14 modules:
 
 ## Using the modules
 
-1. Add a **master** (or **master18**) module from the `voidbot` brand.
-2. Load a `droid.ini` patch via the master's context menu.
+1. Add a **master** (or **master18**) module from the `voidbot` brand. It
+   starts on a bundled patch of eight free-running sine LFOs, one per output
+   (`O1`…`O8`, ±5 V, 0.1 Hz to 8 Hz), so it does something straight away.
+2. Load your own `droid.ini` patch via the master's context menu.
 3. Chain controllers and expanders to the **right** of the master. Chain
    position = controller number, exactly like the hardware ribbon chain
    (`P1.2` = pot 2 on the first controller).
@@ -152,6 +154,7 @@ are always welcome (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 ```sh
 make RACK_DIR=/path/to/Rack-SDK           # build plugin.dylib/.so/.dll
 make install RACK_DIR=/path/to/Rack-SDK   # build + copy into Rack's user plugin folder
+make install UAT=1                        # same, with the UAT bridge built in (dev only)
 ```
 
 `RACK_DIR` defaults to `../Rack-SDK`; pass it explicitly if the SDK lives

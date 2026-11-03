@@ -266,7 +266,7 @@ private:
     float cellValue_[kMax * kMax] = {};
     ui::DisplayBaseline disp_[kMax * kMax];
     float preset_[kPresets][kMax][kMax] = {};
-    int   wasFader_[kMax][kMax];   // fader index each cell was on last tick (-1 = none)
+    int   wasFader_[kMax][kMax] = {};   // fader index each cell was on last tick (-1 = none; init() sets it)
     fc::RecallHold hold_[kMax][kMax];   // recall stays authoritative while held (#45)
     int   prevPreset_ = 0;
     bool  caPrev_ = false, clPrev_ = false, spPrev_ = false, lpPrev_ = false;

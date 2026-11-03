@@ -47,6 +47,18 @@ struct DroidMasterBase : Module {
     std::string patchPath;
     std::string patchStatus = "no patch loaded";
     droid::LoadResult lastResult;
+    // The bundled patch a master placed from the module browser starts with
+    // (issue #110). Only a brand-new module gets it: Rack calls dataFromJson
+    // BEFORE onAdd for anything restored (a saved Rack patch, duplicate, undo of
+    // a delete), and that sets restoredFromJson, so a master saved empty stays
+    // empty. skipDefaultPatch lets the UAT bridge's POST /modules ask for a
+    // genuinely empty master, which the runbook's no-patch checks need.
+    static constexpr const char* kDefaultPatch = "res/patches/lfo8.ini";
+    bool restoredFromJson = false;
+    bool skipDefaultPatch = false;
+    static std::string defaultPatchPath() {
+        return asset::plugin(pluginInstance, kDefaultPatch);
+    }
     // Persistent circuit state (DROIDSTA.BIN contract, hardware.md §11.1),
     // associated with the PATCH rather than with the module (issue #42). The
     // hardware keeps one state blob per SD card and reloads it into whatever
@@ -521,6 +533,19 @@ public:
         if (auto* b = uat::Bridge::instance()) b->unregisterMaster(this);
         delete (droid::chain::UpstreamMessage*) rightExpander.producerMessage;
         delete (droid::chain::UpstreamMessage*) rightExpander.consumerMessage;
+    }
+
+    // A master fresh from the module browser runs the bundled LFO patch, so it
+    // does something the moment it lands (see kDefaultPatch).
+    void onAdd(const AddEvent& e) override {
+        if (restoredFromJson || skipDefaultPatch) return;
+        std::string path;
+        {
+            std::lock_guard<std::mutex> lock(engineMutex);
+            path = patchPath;
+        }
+        if (path.empty())
+            loadPatchFile(defaultPatchPath());
     }
 
     // A controller was added/removed/moved on the chain: request revalidation.
@@ -1461,7 +1486,15 @@ public:
             // for a big enough store.
             storeCopy = stateStore;
         }
-        json_object_set_new(root, "patchPath", json_string(path.c_str()));
+        // The bundled patch lives in the plugin folder, whose absolute path
+        // differs per machine and install, so it is saved as a flag and
+        // resolved again on load rather than as a path that would dangle.
+        if (path == defaultPatchPath()) {
+            json_object_set_new(root, "patchPath", json_string(""));
+            json_object_set_new(root, "defaultPatch", json_true());
+        } else {
+            json_object_set_new(root, "patchPath", json_string(path.c_str()));
+        }
         json_object_set_new(root, "targetHz", json_real(targetHz));
         json_object_set_new(root, "timingMode",
             json_string(timingMode == TimingMode::Adaptive ? "adaptive" : "fixed"));
@@ -1482,6 +1515,7 @@ public:
         return root;
     }
     void dataFromJson(json_t* root) override {
+        restoredFromJson = true;   // a restored module never gets the default patch
         // json_number_value accepts both JSON int and real; clamp above 0 so a
         // corrupt/zero value can't divide-by-zero in updateDivider.
         if (json_t* j = json_object_get(root, "targetHz"))
@@ -1526,7 +1560,9 @@ public:
         }
         // json_string_value returns NULL for a non-string node; dereferencing
         // that via std::string is UB, so guard the accessor.
-        if (json_t* j = json_object_get(root, "patchPath")) {
+        if (json_is_true(json_object_get(root, "defaultPatch"))) {
+            loadPatchFile(defaultPatchPath());
+        } else if (json_t* j = json_object_get(root, "patchPath")) {
             if (const char* s = json_string_value(j)) {
                 std::string p = s;
                 if (!p.empty()) loadPatchFile(p);

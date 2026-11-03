@@ -57,7 +57,7 @@ crosscheck:
 # Live UAT bridge smoke (issue #49): the canonical invocation of
 # tools/uatbridge-smoke.sh. NOT part of `make test` — it drives a real VCV Rack
 # (attaching to a running one, or launching from tests/smoketest_default.vcv),
-# so it needs an installed plugin build (`make install`) and jq.
+# so it needs an installed bridge-enabled build (`make install UAT=1`) and jq.
 # Every env override the script documents still applies:
 #   make smoke SKIP_HASH=1          # installed build came from another worktree
 #   make smoke MASTER_ID=12 RACK=…  # skip discovery / pin the Rack binary

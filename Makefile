@@ -16,18 +16,31 @@ ENGINE_SOURCES := $(wildcard engine/src/*.cpp) \
 FLAGS += -Iengine
 
 SOURCES += $(wildcard plugin/src/*.cpp) $(ENGINE_SOURCES)
+# The UAT bridge (a localhost HTTP listener for tools/uatbridge-smoke.sh and the
+# runbook) is a dev tool: release builds leave it out entirely, so the Library
+# package opens no socket. `make install UAT=1` builds it in.
+ifeq ($(UAT),1)
 SOURCES += $(wildcard plugin/src/uatbridge/*.cpp)
+FLAGS += -DVOIDBOT_UAT_BRIDGE
+endif
+# make tracks files, not flags: rewrite build/uat-mode only when the mode
+# changes, and rebuild every object when it does, or a plain build after a
+# UAT=1 one would link stale bridge-enabled objects (and vice versa).
+$(shell mkdir -p build && [ -f build/uat-mode ] \
+        && [ "$$(cat build/uat-mode)" = "$(UAT)" ] || echo "$(UAT)" > build/uat-mode)
 FLAGS += -DVOIDBOT_GIT_HASH=\"$(shell git rev-parse --short HEAD)\"
 # Tag if the build is exactly at one, else the branch name; empty on a
 # detached HEAD that isn't at a tag. Shown in every module's context menu.
 FLAGS += -DVOIDBOT_GIT_REF=\"$(shell git describe --tags --exact-match 2>/dev/null || git symbolic-ref --short -q HEAD)\"
-DISTRIBUTABLES += res
+DISTRIBUTABLES += res LICENSE NOTICE
 
 include $(RACK_DIR)/plugin.mk
 
 # plugin.mk's compile.mk appends -std=c++11 after our flags, so we must strip it
 # and force C++17 here (after the include) or the engine sources won't compile.
 CXXFLAGS := $(filter-out -std=c++11,$(CXXFLAGS)) -std=c++17
+
+$(OBJECTS): build/uat-mode
 
 else
 
