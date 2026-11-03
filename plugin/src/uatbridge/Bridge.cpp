@@ -1211,6 +1211,9 @@ std::string Bridge::handleModulesList(int* code) {
 // unconditional Engine::removeModule). setModulePosForce then places it at
 // the exact requested px position (same "force" placement used by
 // /modules/{id}/move, so initial placement and move share behavior).
+// A master added this way starts on the bundled default patch, exactly like
+// one dropped from the browser; optional `"emptyPatch": true` keeps it empty
+// for the runbook's no-patch checks (DroidMasterBase::skipDefaultPatch).
 std::string Bridge::handleModulesAdd(const Request& req, int* code) {
     json_t* root = parseJsonBody(req.body, code);
     if (!root) return "{\"error\":\"invalid JSON body\"}";
@@ -1228,9 +1231,10 @@ std::string Bridge::handleModulesAdd(const Request& req, int* code) {
     std::string slug = json_string_value(jSlug);
     float x = (float)json_number_value(jX);
     float y = (float)json_number_value(jY);
+    bool emptyPatch = json_is_true(json_object_get(root, "emptyPatch"));
     json_decref(root);
 
-    return uiCall([plugin, slug, x, y](int* c) -> json_t* {
+    return uiCall([plugin, slug, x, y, emptyPatch](int* c) -> json_t* {
         rack::plugin::Model* model = rack::plugin::getModel(plugin, slug);
         if (!model) {
             *c = 404;
@@ -1242,6 +1246,9 @@ std::string Bridge::handleModulesAdd(const Request& req, int* code) {
             *c = 500;
             return jerr("failed to create module");
         }
+        if (emptyPatch)
+            if (auto* m = dynamic_cast<DroidMasterBase*>(module))
+                m->skipDefaultPatch = true;   // read by onAdd, inside addModule
         APP->engine->addModule(module);   // assigns module->id (see header note)
         rack::app::ModuleWidget* widget = model->createModuleWidget(module);
         if (!widget) {
