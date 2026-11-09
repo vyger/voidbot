@@ -1,10 +1,11 @@
 #include "ChainModule.hpp"
 #include "DroidWidgets.hpp"
+#include "LedLevels.hpp"
 
 // DROID B32 controller: 32 momentary buttons (B<c>.1-32) with 32 LEDs
 // (L<c>.1-32) in a 4x8 grid. Hardware renders LEDs at only four brightness
 // levels (off/low/medium/full) — a fast-serial-link design choice — so this
-// module quantizes each incoming brightness before display.
+// module quantizes each incoming brightness before display (LedLevels.hpp).
 // manual/hardware.md §6.9, manual/basics.md §5.5.
 struct DroidB32 : ChainModule {
     enum ParamId { ENUMS(BUTTON_PARAMS, 32), PARAMS_LEN };
@@ -18,13 +19,6 @@ struct DroidB32 : ChainModule {
             configButton(BUTTON_PARAMS + i, string::f("B%d", i + 1));
     }
 
-    // Quantize 0..1 brightness to the four hardware levels {0, 1/3, 2/3, 1}.
-    // Sanity check (nearest of 3 equal steps): 0.1*3=0.3->round 0 -> 0;
-    // 0.2*3=0.6->round 1 -> 1/3; 0.6*3=1.8->round 2 -> 2/3; 0.9*3=2.7->round 3 -> 1.
-    static float quantizeLed(float v) {
-        return std::round(math::clamp(v, 0.f, 1.f) * 3.f) / 3.f;
-    }
-
     droid::chain::ModelId chainModel() const override { return droid::chain::MB32; }
 
     void fillUpstream(droid::chain::UpstreamBlock& b) override {
@@ -33,7 +27,7 @@ struct DroidB32 : ChainModule {
 
     void applyDownstream(const droid::chain::DownstreamBlock& b, float sampleTime) override {
         for (int i = 0; i < 32; i++)
-            lights[BUTTON_LIGHTS + i].setBrightnessSmooth(quantizeLed(b.leds[i]), sampleTime);
+            lights[BUTTON_LIGHTS + i].setBrightnessSmooth(voidbot::quantizeLed2bit(b.leds[i]), sampleTime);
     }
 
     void applyOwnLabels() override {

@@ -1,6 +1,7 @@
 #include "ChainModule.hpp"
 #include "EncoderWidgets.hpp"
 #include "DroidWidgets.hpp"
+#include "LedLevels.hpp"
 #include "src/controllerstate.hpp"   // droid::DisplayLayout (via -Iengine)
 #include <algorithm>
 #include <cmath>
@@ -70,8 +71,11 @@ struct DroidDB8E : ChainModule {
     }
 
     void applyDownstream(const droid::chain::DownstreamBlock& b, float sampleTime) override {
-        for (int i = 0; i < 8; i++)                       // L1.1-L1.8 = the 8 button LEDs
-            lights[BUTTON_LIGHTS + i].setBrightnessSmooth(b.leds[i], sampleTime);
+        // L1.1-L1.8 = the 8 button LEDs. Like the B32 they show only four
+        // brightness levels on hardware (2 bits per LED; observed, not in the
+        // official manual — hardware.md §6.12 voidbot note, issue #112).
+        for (int i = 0; i < 8; i++)
+            lights[BUTTON_LIGHTS + i].setBrightnessSmooth(voidbot::quantizeLed2bit(b.leds[i]), sampleTime);
         ringFlags    = b.ringFlags[0];
         ringValue    = b.ringValue[0];
         ringColor    = b.ringColor[0];

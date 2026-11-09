@@ -553,6 +553,17 @@ Aside from a 128 × 64 pixel OLED display the DB8E is a normal controller with e
 
 The buttons and the encoder control the display but you can use them in your patch (see below how).
 
+> **voidbot note (not in the official manual; observed on hardware).** Like the
+> B32 (see [§6.9](#69-the-b32-controller)), the DB8E's eight **button LEDs**
+> (`L1.1` … `L1.8`) support only four brightness levels: off, low (≈ 1/3),
+> medium (≈ 2/3) and full. A value written to one of these registers is shown
+> at the *nearest* level, so anything below about `0.17` stays dark, `0.2`
+> already lights "low" (brighter than a P2B8 at `0.2`), and a value must reach
+> about `0.84` to show "full" (`0.8` is still "medium"). The cut-offs are
+> inferred from user reports, not documented by the manufacturer. The LED
+> ring around the encoder is not affected. voidbot renders the DB8E and B32
+> button LEDs this way; the register itself keeps the exact value.
+
 The DB8E is 6 HP wide, has the same STM32F030 micro controller as all the other controllers and has a typical power consumption of 40 mA on the +12 V rail. If you make all LEDs white, including those around the encoder, and as many white pixels on the display as possible, the power consumption maxes out at about 103 mA.
 
 #### Using the display
