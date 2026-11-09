@@ -153,6 +153,13 @@ switches between four different wave forms of an LFO:
 If you have three or four states, the LED will use different brightness levels
 for indicating the current state.
 
+> **voidbot note.** The button LEDs of the B32 and DB8E show only four brightness
+> levels (off, low, medium, full — see [§6.9](../hardware.md#69-the-b32-controller)
+> and the voidbot note in [§6.12](../hardware.md#612-the-db8e-display-controller)),
+> so intermediate `led` values are rounded to the nearest level there. The three-
+> and four-state values stay distinguishable; other dim values (e.g. `0.05`)
+> may show as off.
+
 ## Momentary buttons
 
 If you just need a momentary button (one that just lights up while you hold it
@@ -354,7 +361,7 @@ want to do this, you can use a combination of [`display`](display.md) and
 
 | Jack | Type | Description |
 |------|------|-------------|
-| `led` (`l`) | CV | When the button state is on, a value of `1.0` will be sent to that output – regardless of the values in `onvalue` and `offvalue`. If the number of states is 3 or 4 the output get's intermediate values so the attached LED will be dimmed into different brightness levels. Usually you wire that output to a LED register, e.g. to `L1.1`, `L1.2` and so on. |
+| `led` (`l`) | CV | When the button state is on, a value of `1.0` will be sent to that output – regardless of the values in `onvalue` and `offvalue`. If the number of states is 3 or 4 the output get's intermediate values so the attached LED will be dimmed into different brightness levels. Usually you wire that output to a LED register, e.g. to `L1.1`, `L1.2` and so on. On a B32 or DB8E those LEDs show only four brightness levels (see the voidbot note above). |
 | `output` (`o`) | CV | This output will output the current button states. This is usually 0 for off and 1 for on. If `states` is 3 or 4, the values 2 or 3 are output for the additional states. You can modify all four values with the inputs `offvalue`/`value1`, `onvalue`/`value2`, `value3` and `value4`. Note: if you haven't changed any of these inputs and `states` is unchanged or 1 or 2, the `led` output will output the same values. |
 | `inverted` (`iv`) | CV | The same as `output`, but sends `onvalue` when the button is off and `offvalue` when the button is on. If `states` is 3 or 4, the order of the four output values will be mirrored (probably a feature that is rarely of any use). |
 | `negated` (`n`) | gate | Similar to `inverted`, but always sends 1 when the button is off and 0 when the button is on – independent of the values of `onvalue` and `offvalue`. When `states` is 3 or 4, this output will be 1 if the button is off and 0 in the other three states. |
